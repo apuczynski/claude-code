@@ -276,3 +276,45 @@ def test_summarize_instaloader_post():
     carousel = SimpleNamespace(**{**vars(p), "typename": "GraphSidecar", "is_video": False, "_node": {}})
     s2 = collect_mod.summarize_post(carousel)
     assert s2["type"] == "carousel" and s2["plays"] is None and s2["shares"] is None
+
+
+def test_browser_export_two_passes(sample_video, tmp_path):
+    from content_engine.browser_import import _num, import_export
+
+    assert _num("12.3K") == 12300 and _num("1,204") == 1204 and _num("1.1M") == 1_100_000 and _num("") is None
+    export = tmp_path / "export"
+    (export / "videos").mkdir(parents=True)
+    rows = ["creator,shortcode,date,type,views,likes,comments,shares,duration_s,caption",
+            "@scanme,SAVED1,2026-11-02T18:30:00Z,reel,2.5M,40K,900,3.1K,34,\"Big one #tips\"",
+            "dontscan,SAVED2,2026-10-01,video,10K,500,20,,20,message"]
+    rows += [f"scanme,P{i},2026-09-{i + 1:02d}T12:00:00Z,video,{i}K,{i * 10},{i},{i},15,post {i}" for i in range(25)]
+    rows += ["scanme,PHOTO,2026-08-01,photo,,300,4,,,a photo"]
+    (export / "posts.csv").write_text("\n".join(rows) + "\n")
+    (export / "profiles.csv").write_text("creator,full_name,bio,link,followers,highlights\nscanme,Scan Me,bio,,12K,Start;FAQ\n")
+    (export / "comments.csv").write_text("shortcode,likes,text\nSAVED1,5,so good\n")
+    (export / "covers" / "scanme").mkdir(parents=True)
+    (export / "covers" / "scanme" / "grid_1.png").write_bytes(b"png")
+
+    table = CreatorTable(reels=[
+        Reel(1, "https://www.instagram.com/reel/SAVED1/", True, True, "great editing", "full", ["E"]),
+        Reel(2, "https://www.instagram.com/reel/SAVED2/", False, False, "the message", "message", []),
+    ], top_by_views=5, top_by_shares=3)
+    data = tmp_path / "data"
+
+    # Pass 1: nothing downloaded yet -> the list of what to get.
+    m, todo = import_export(table, export, data)
+    assert "SAVED1" in todo and "SAVED2" in todo and "PHOTO" not in todo
+    assert len(todo) == len(m.videos)
+    assert (export / "to_download.txt").read_text().count("instagram.com") == len(todo)
+    page = json.loads((data / "creators/scanme/page.json").read_text())
+    assert page["profile"]["followers"] == 12000 and page["highlights"][1]["title"] == "FAQ"
+    assert page["comments"]["SAVED1"][0]["text"] == "so good"
+    assert m.videos["SAVED1"].post["plays"] == 2_500_000 and m.videos["SAVED1"].post["hour_utc"] == 18
+    assert not (data / "creators/dontscan/page.json").exists()
+
+    # Pass 2: the videos are in -> everything ready.
+    for code in todo:
+        (export / "videos" / f"{code}.mp4").write_bytes(sample_video.read_bytes())
+    m, todo = import_export(table, export, data)
+    assert todo == [] and all(v.path for v in m.videos.values())
+    assert (data / "creators/scanme/grid/grid_1.png").exists()

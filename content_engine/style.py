@@ -64,7 +64,8 @@ def build_profile_request(username: str, manifest: Manifest, data_dir: Path = DA
             f"Every post:\n```\n{_post_table(page['posts'])}\n```\n\n"
             f"Comments on the top videos:\n```json\n{json.dumps(comments, indent=1, ensure_ascii=False)}\n```"
         ))
-        grid = sorted((data_dir / "creators" / username / "grid").glob("*.jpg"))
+        gdir = data_dir / "creators" / username / "grid"
+        grid = sorted(f for f in gdir.glob("*") if f.suffix.lower() in (".jpg", ".jpeg", ".png"))
         if grid:
             content.append(llm.text_block("Grid covers, newest first, then the profile picture:"))
             for g in grid[:31]:

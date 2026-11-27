@@ -66,6 +66,20 @@ python -m content_engine combine
 python -m content_engine scripts     # today's scripts
 ```
 
+### Step 1 another way: collect in a browser (SnapInsta)
+
+If you'd rather not use instaloader and yt-dlp, collect Step 1 by hand or with a browser agent,
+and the program takes it from there:
+
+1. In `data/browser_export/`, fill in `posts.csv` (templates in `config/browser_export_templates/`):
+   one row for each saved reel, and one for every post on each page marked Scan page = yes. Copy
+   numbers as Instagram shows them (`12.3K` is fine), and leave hidden ones blank. Optionally add
+   `profiles.csv`, `comments.csv`, and grid screenshots in `covers/<creator>/`.
+2. `python -m content_engine import-browser` writes `data/browser_export/to_download.txt`: the
+   saved reels plus each scanned creator's top 20 by views and top 10 by shares.
+3. Download those (for example with SnapInsta) into `data/browser_export/videos/` as `<shortcode>.mp4`.
+4. Run `import-browser` again. Once it says every video is in, continue with `analyze`.
+
 `python -m content_engine all --login YOUR_INSTAGRAM_USERNAME` runs collect through combine in one go.
 Every step skips work that's already done; add `--force` to redo it. `--creator NAME` limits
 `analyze` and `profile` to one creator.

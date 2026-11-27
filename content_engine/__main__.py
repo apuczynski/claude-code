@@ -1,6 +1,7 @@
 """Command line: python -m content_engine <step> [options]
 
   collect   Step 1: read the saved reels, scan pages, download videos
+  import-browser  Step 1 another way: use posts.csv + videos collected in a browser
   analyze   Step 2: measure and break down every video (Sections A-I)
   profile   Step 2: a style profile for every creator (+ J and K)
   combine   Step 2: one combined style guide
@@ -31,6 +32,22 @@ def _collect(a):
     ok = sum(1 for v in m.videos.values() if v.path)
     print(f"Collected {len(m.creators)} creators and {ok} of {len(m.videos)} videos. "
           f"See {DATA_DIR / 'manifest.json'}")
+
+
+def _import_browser(a):
+    from pathlib import Path
+
+    from .browser_import import EXPORT_DIR, import_export
+
+    export = Path(a.export_dir) if a.export_dir else EXPORT_DIR
+    m, todo = import_export(load_creator_table(), export)
+    ok = sum(1 for v in m.videos.values() if v.path)
+    print(f"Imported {len(m.creators)} creators; {ok} of {len(m.videos)} videos ready.")
+    if todo:
+        print(f"{len(todo)} videos still to download into {export / 'videos'} (named <shortcode>.mp4).")
+        print(f"The list is in {export / 'to_download.txt'}. Run import-browser again when they're there.")
+    else:
+        print("Every video is in. Next: python -m content_engine analyze --limit 3")
 
 
 def _analyze(a):
@@ -116,6 +133,10 @@ def main(argv=None):
     sp = sub.add_parser("collect", help="Step 1")
     collect_opts(sp)
     sp.set_defaults(fn=_collect)
+
+    sp = sub.add_parser("import-browser", help="Step 1 from a browser export (posts.csv + videos/)")
+    sp.add_argument("--export-dir", help="default: data/browser_export")
+    sp.set_defaults(fn=_import_browser)
 
     sp = sub.add_parser("analyze", help="Step 2: video breakdowns")
     analyze_opts(sp)
