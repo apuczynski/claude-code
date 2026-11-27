@@ -1,0 +1,19 @@
+# About YOU. Step 3 writes scripts for this person, in the combined style.
+# Fill this in before running `python -m content_engine scripts`.
+
+niche: ""            # e.g. "personal finance for nurses"
+audience: ""         # who the videos are for
+what_you_offer: ""   # product, service or newsletter, if any; leave blank if none
+goals: ""            # e.g. "grow followers", "get newsletter sign-ups"
+voice_notes: ""      # how you talk: words you use, words you never use
+
+scripts_per_day: 3
+target_length_seconds: [30, 60]
+
+# What you have to record with. The recording instructions stick to this kit.
+equipment: "phone (rear camera), tripod, clip-on mic, ring light"
+locations: "home office, kitchen, car, outdoors nearby"
+green_screen: false   # true if you can do the reel-5 green-screen format
+
+topic_ideas: []       # optional list of topics you want covered soon
+avoid: []             # topics or styles to stay away from

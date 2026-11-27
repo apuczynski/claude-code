@@ -1,0 +1,81 @@
+# The saved reels from the PRD's Input table.
+#
+# scan_page:   true  = go through the creator's whole page (Step 1).
+#              false = use only this saved reel; never open the creator's page.
+# extra_focus: true  = deepest breakdown of every section, most weight in the combined style.
+# scope:       full    = break down everything (default).
+#              format  = break down the format itself (reel 5: green-screen over a YouTube video).
+#              message = break down only the message and the story (reels 11 and 12).
+# likes:       what the user likes, in their words. It decides which sections go deepest:
+#              editing -> E-H; page/branding/concept/community -> J;
+#              education/stories/inspiration/authenticity/engagement -> B, C, D, I.
+#              Set deep_sections: [...] on a reel to override the automatic choice.
+
+reels:
+  - n: 1
+    url: https://www.instagram.com/reel/DgLPuk1yc_9/
+    scan_page: true
+    extra_focus: true
+    likes: Not in the user's industry, but really good branding, a really good page, a great concept, and great education.
+  - n: 2
+    url: https://www.instagram.com/reel/DfxcDgpgrh0/
+    scan_page: true
+    extra_focus: false
+    likes: Good editing, a great community, and pretty good educational content. Engaging.
+  - n: 3
+    url: https://www.instagram.com/p/DeGnaliAvQW/
+    scan_page: true
+    extra_focus: false
+    likes: Very engaging. Great editing.
+  - n: 4
+    url: https://www.instagram.com/reel/DZqah_eukNf/
+    scan_page: true
+    extra_focus: true
+    likes: Great editing, great stories, great inspiration, a really good page in general. Insanely good educational content.
+  - n: 5
+    url: https://www.instagram.com/reel/Dd1RGFUBmH5/
+    scan_page: false
+    extra_focus: false
+    scope: format
+    likes: This video only. He references a YouTube video using just a green screen. Great idea, and the user wants to do it too.
+  - n: 6
+    url: https://www.instagram.com/reel/DgD6rf7PdSO/
+    scan_page: true
+    extra_focus: true
+    likes: Amazing page, amazing content, very inspirational, really, really good editing.
+  - n: 7
+    url: https://www.instagram.com/reel/DgItK2yNqu6/
+    scan_page: true
+    extra_focus: true
+    likes: Really good educational and inspirational content. Great page.
+  - n: 8
+    url: https://www.instagram.com/reel/DTys9uQjT2V/
+    scan_page: true
+    extra_focus: false
+    likes: Loves the authenticity. Inspirational.
+  - n: 9
+    url: https://www.instagram.com/reel/DAzCFqTRxWm/
+    scan_page: true
+    extra_focus: true
+    likes: Very, very good content. An amazing page. Great editing. Very educational content.
+  - n: 10
+    url: https://www.instagram.com/reel/Dd9VanOR0hi/
+    scan_page: true
+    extra_focus: false
+    likes: Great page, great stories. A little outside the user's niche, but something the user is passionate about.
+  - n: 11
+    url: https://www.instagram.com/reel/DdRiZtlRzPA/
+    scan_page: false
+    extra_focus: false
+    scope: message
+    likes: This post only. The story and the message are awesome. Not the editing or the way it's said.
+  - n: 12
+    url: https://www.instagram.com/reel/Dd62mivxNsB/
+    scan_page: false
+    extra_focus: false
+    scope: message
+    likes: This post only. The message it gets across. Not the editing or the way it's said.
+
+# Step 1 numbers from the PRD.
+top_by_views: 20
+top_by_shares: 10
