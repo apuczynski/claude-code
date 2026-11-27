@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+# Everything collected from Instagram (videos, captions, other people's comments) and the
+# breakdowns stay on your computer. Only the finished style guide is committed, because the
+# daily GitHub Action needs it to write scripts.
+data/*
+!data/style_guide.md
+*.mp4
+*.part
+.env

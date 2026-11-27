@@ -1,0 +1,7 @@
+anthropic>=2.14.0
+instaloader>=4.16
+yt-dlp>=2026.11.23
+faster-whisper>=1.2.1
+numpy>=1.26
+PyYAML>=6.0
+pytest>=8.0

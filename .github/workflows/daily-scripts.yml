@@ -1,0 +1,50 @@
+name: Daily scripts
+
+# Step 3: writes today's scripts to output/scripts/YYYY-MM-DD.md and commits them.
+# Needs: an ANTHROPIC_API_KEY repository secret, config/brief.yaml filled in, and
+# data/style_guide.md committed (made on your computer by collect -> analyze -> profile -> combine).
+
+on:
+  schedule:
+    - cron: "17 11 * * *"   # every day at 11:17 UTC; change to suit you
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check setup
+        id: check
+        env:
+          KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then echo "No ANTHROPIC_API_KEY secret; skipping."; echo "ready=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ ! -f data/style_guide.md ]; then echo "No data/style_guide.md yet; skipping."; echo "ready=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "ready=yes" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.ready == 'yes'
+        with:
+          python-version: "3.12"
+
+      - name: Write today's scripts
+        if: steps.check.outputs.ready == 'yes'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          pip install "anthropic>=2.14.0" "PyYAML>=6.0" "numpy>=1.26"
+          python -m content_engine scripts
+
+      - name: Commit
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          git config user.name "daily-scripts"
+          git config user.email "daily-scripts@users.noreply.github.com"
+          git add output/scripts
+          git diff --cached --quiet || git commit -m "Scripts for $(date -u +%F)"
+          git push
