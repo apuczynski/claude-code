@@ -35,7 +35,10 @@ def _rate(p, key):
 def page_stats(posts: list[dict], picked: set[str]) -> dict:
     if not posts:
         return {"note": "no posts found"}
-    dates = sorted(datetime.fromisoformat(p["date_utc"]) for p in posts)
+    dated = [p for p in posts if p.get("date_utc")]
+    if not dated:
+        return {"note": "no post dates recorded", "posts_total": len(posts)}
+    dates = sorted(datetime.fromisoformat(p["date_utc"]) for p in dated)
     span_days = max((dates[-1] - dates[0]).days, 1)
     gaps = [(b - a).total_seconds() / 86400 for a, b in zip(dates, dates[1:])]
     recent = [d for d in dates if (dates[-1] - d).days <= 90]
@@ -69,8 +72,8 @@ def page_stats(posts: list[dict], picked: set[str]) -> dict:
     rest = [p for p in videos if p["shortcode"] not in picked]
     captions = [p.get("caption") or "" for p in posts]
     cta = {name: sum(1 for c in captions if re.search(rx, c, re.I)) for name, rx in CTA_PATTERNS.items()}
-    oldest = sorted(posts, key=lambda p: p["date_utc"])[:10]
-    newest = sorted(posts, key=lambda p: p["date_utc"], reverse=True)[:10]
+    oldest = sorted(dated, key=lambda p: p["date_utc"])[:10]
+    newest = sorted(dated, key=lambda p: p["date_utc"], reverse=True)[:10]
 
     def brief(p):
         first = (p.get("caption") or "").strip().splitlines()[0][:120] if p.get("caption") else ""
@@ -79,9 +82,10 @@ def page_stats(posts: list[dict], picked: set[str]) -> dict:
 
     return {
         "posts_total": len(posts),
+        "posts_with_a_date": len(dated),
         "first_post": dates[0].date().isoformat(),
         "latest_post": dates[-1].date().isoformat(),
-        "posts_per_week_all_time": round(len(posts) / span_days * 7, 2),
+        "posts_per_week_all_time": round(len(dated) / span_days * 7, 2),
         "posts_per_week_last_90_days": round(len(recent) / 90 * 7, 2),
         "days_between_posts": {"median": _median(gaps), "longest": round(max(gaps), 1) if gaps else None,
                                "std_dev": round(statistics.pstdev(gaps), 1) if len(gaps) > 1 else None},

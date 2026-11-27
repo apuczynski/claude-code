@@ -318,3 +318,12 @@ def test_browser_export_two_passes(sample_video, tmp_path):
     m, todo = import_export(table, export, data)
     assert todo == [] and all(v.path for v in m.videos.values())
     assert (data / "creators/scanme/grid/grid_1.png").exists()
+
+
+def test_page_stats_with_missing_dates():
+    posts = _posts()
+    for p in posts[10:]:
+        p["date_utc"] = ""
+    s = page_stats(posts, set())
+    assert s["posts_total"] == 40 and s["posts_with_a_date"] == 10
+    assert page_stats([{**p, "date_utc": ""} for p in posts], set())["note"] == "no post dates recorded"
